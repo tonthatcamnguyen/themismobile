@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   View,
   Text,
@@ -17,7 +17,7 @@ import images from '../../res/images/index';
 import Sizes from '../../res/values/Sizes';
 import TextInputAnimated from './TextInputAnimated';
 
-const LoginButton = ({onPress, title, navigation}) => (
+const LoginButton = ({ onPress, title, navigation }) => (
   <TouchableOpacity onPress={() => onPress()} style={styles.loginContainer}>
     <Text style={styles.loginBtn}>{title}</Text>
   </TouchableOpacity>
@@ -32,6 +32,30 @@ export default class Login extends Component {
       username: 'maipt@fpt.comvn',
       isCheck: false,
     };
+  }
+
+  componentDidMount() {
+    TouchID.isSupported()
+      .then(biometryType => {
+
+        // const config = {
+        //   title: 'Authentication Required',
+        //   cancelButton: 'Cancel',
+        // }
+        // FingerprintScanner.authenticate(config)
+        //   .then(() => this.onPressLogin())
+        //   .catch((error) => alert(error.message))
+
+        if (biometryType === 'FaceID') {
+          console.log('FaceID is supported.');
+        } else {
+          console.log('TouchID is supported.');
+        }
+      })
+      .catch(error => {
+        // Failure code
+        console.log(error);
+      })
   }
 
   componentDidUpdate(prevProps) {
@@ -57,10 +81,14 @@ export default class Login extends Component {
     this.props.navigation.navigate("homeContainer")
   };
 
+  componentWillUnmount() {
+    FingerprintScanner.release();
+  }
+
   render() {
     return (
       <ScrollView
-        contentContainerStyle={{flexGrow: 1}}
+        contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled">
         <ImageBackground
           imageStyle={{
@@ -81,19 +109,19 @@ export default class Login extends Component {
                 source={images.themis}
               />
               <TextInputAnimated
-                style={{marginTop: Sizes.h16}}
+                style={{ marginTop: Sizes.h16 }}
                 value={this.state.email}
-                onChangeText={(text) => this.setState({email: text})}
-                onPressClear={() => this.setState({email: ''})}
+                onChangeText={(text) => this.setState({ email: text })}
+                onPressClear={() => this.setState({ email: '' })}
                 label="Email"
               />
               <TextInputAnimated
-                style={{marginTop: Sizes.h16}}
+                style={{ marginTop: Sizes.h16 }}
                 label="Nhập mật khẩu"
                 isPassword
                 value={this.state.password}
-                onChangeText={(text) => this.setState({password: text})}
-                onPressClear={() => this.setState({password: ''})}
+                onChangeText={(text) => this.setState({ password: text })}
+                onPressClear={() => this.setState({ password: '' })}
               />
               <TouchableWithoutFeedback onPress={this.onToggleCheck}>
                 <View style={styles.checkContainer}>
@@ -109,11 +137,21 @@ export default class Login extends Component {
                 title="Đăng nhập"
                 onPress={() => this.onPressLogin()}
               />
+              <Button title="AA" onPress={() => {
+                const config = {
+                  title: 'Authentication Required',
+                  cancelButton: 'Cancel',
+                }
+                FingerprintScanner.authenticate(config)
+                  .then(() => this.onPressLogin())
+                  .catch((error) => alert(error.message))
+
+              }}></Button>
             </View>
           </KeyboardAvoidingView>
         </ImageBackground>
         <Text
-          style={{fontSize: Sizes.h12, textAlign: 'center', color: '#8C8C8C', }}>
+          style={{ fontSize: Sizes.h12, textAlign: 'center', color: '#8C8C8C', }}>
           Copyright by FPT - Infomation System
         </Text>
       </ScrollView>
